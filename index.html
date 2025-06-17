@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Party Dado 3D</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&family=Poppins:wght@400;600;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 25%, #3498db 50%, #2980b9 75%, #1f4e79 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 8s ease infinite;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Partículas flotantes de fondo */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
+        radial-gradient(circle at 60% 30%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 100px 100px, 150px 150px, 80px 80px, 120px 120px;
+      animation: float 20s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(-20px, -20px) rotate(90deg); }
+      50% { transform: translate(20px, -40px) rotate(180deg); }
+      75% { transform: translate(-10px, -20px) rotate(270deg); }
+      100% { transform: translate(0, 0) rotate(360deg); }
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, #3498db, #f1c40f, #2980b9, #f39c12);
+      background-size: 300% auto;
+      color: transparent;
+      background-clip: text;
+      -webkit-background-clip: text;
+      animation: rainbowText 3s linear infinite;
+      margin-top: 2rem;
+      margin-bottom: 10rem;
+      text-align: center;
+    }
+
+    @keyframes rainbowText {
+      0% { background-position: 0% center; }
+      100% { background-position: 300% center; }
+    }
+
+    .scene {
+      width: 200px;
+      height: 200px;
+      perspective: 1200px;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      cursor: pointer;
+      transition: transform 5s ease;
+    }
+
+    .face {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border: 3px solid #fff;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+      backface-visibility: hidden;
+    }
+
+    .face1 { 
+      transform: rotateY(0deg) translateZ(100px); 
+      background: linear-gradient(135deg, #e1B002, #f2c201);
+    }
+    .face2 { 
+      transform: rotateY(90deg) translateZ(100px); 
+      background: linear-gradient(135deg, #f1c40f, #f39c12);
+    }
+    .face3 { 
+      transform: rotateY(180deg) translateZ(100px); 
+      background: linear-gradient(135deg, #ebd34e, #f3e85a);
+    }
+    .face4 { 
+      transform: rotateY(-90deg) translateZ(100px); 
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+    }
+    .face5 { 
+      transform: rotateX(90deg) translateZ(100px); 
+      background: linear-gradient(135deg, #daad01, #e1b002);
+    }
+    .face6 { 
+      transform: rotateX(-90deg) translateZ(100px); 
+      background: linear-gradient(135deg, #f4d03f, #f1c40f);
+    }
+
+    .result {
+      margin-top: 3rem;
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #fff;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .instructions {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+      font-weight: 400;
+      text-align: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    .rolling {
+      animation: roll 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    }
+
+    @keyframes roll {
+      0% { transform: rotateX(0deg) rotateY(0deg); }
+      25% { transform: rotateX(180deg) rotateY(180deg) scale(1.1); }
+      50% { transform: rotateX(360deg) rotateY(360deg) scale(0.9); }
+      75% { transform: rotateX(540deg) rotateY(540deg) scale(1.05); }
+      100% { transform: rotateX(720deg) rotateY(720deg) scale(1); }
+    }
+
+    /* Efectos de partículas al hacer clic */
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: particle 1s ease-out forwards;
+    }
+
+    @keyframes particle {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0) translateY(-50px);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .scene {
+        width: 180px;
+        height: 180px;
+      }
+      
+      .face {
+        width: 180px;
+        height: 180px;
+        font-size: 1.5rem;
+      }
+      
+      .face1, .face2, .face3, .face4 { transform: rotateY(0deg) translateZ(90px); }
+      .face2 { transform: rotateY(90deg) translateZ(90px); }
+      .face3 { transform: rotateY(180deg) translateZ(90px); }
+      .face4 { transform: rotateY(-90deg) translateZ(90px); }
+      .face5 { transform: rotateX(90deg) translateZ(90px); }
+      .face6 { transform: rotateX(-90deg) translateZ(90px); }
+      
+      .result {
+        font-size: 1.5rem;
+        padding: 1rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>CUI-DADO!</h1>
+  <div class="scene">
+    <div class="cube" id="cube">
+      <div class="face face1">ABRAZO</div>
+      <div class="face face2">BAILA</div>
+      <div class="face face3">TRAGO</div>
+      <div class="face face4">BESO</div>
+      <div class="face face5">CANTA</div>
+      <div class="face face6">CHISTE</div>
+    </div>
+  </div>
+  <div class="result" id="result"></div>
+
+  <script>
+    const cube = document.getElementById('cube');
+    const result = document.getElementById('result');
+
+    const actions = [
+      '¡Dale un ABRAZO a alguien!',
+      '¡Dale un BESO a alguien!',
+      '¡Tómate un TRAGO!',
+      '¡Hay que salir a BAILAR!',
+      '¡Hora de CANTAR!',
+      '¡Cuenta un CHISTE divertido!'
+    ];
+
+    const finalRotations = [
+      { x: 0, y: 0 },
+      { x: 0, y: 90 },
+      { x: 0, y: 180 },
+      { x: 0, y: -90 },
+      { x: -90, y: 0 },
+      { x: 90, y: 0 }
+    ];
+
+    cube.addEventListener('click', () => {
+      const rand = Math.floor(Math.random() * 6);
+      const final = finalRotations[rand];
+      const direction = Math.random() < 0.5 ? 1 : -1;
+
+      const spins = 3;
+      const rotationX = 360 * spins * direction + final.x;
+      const rotationY = 360 * spins + final.y;
+
+      cube.style.transition = 'transform 4s ease-in-out';
+      cube.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+
+      setTimeout(() => {
+        result.textContent = actions[rand];
+      }, 4000);
+    });
+  </script>
+</body>
+</html>
